@@ -3864,9 +3864,7 @@
     "title": "New Product Course",
     "price": 999,
     "description": "A description",
-    "images": [
-      "https://placeimg.com/640/480/any"
-    ],
+    "images": ["https://placeimg.com/640/480/any"],
     "creationAt": "2023-05-03T03:33:25.000Z",
     "updatedAt": "2023-05-03T03:33:25.000Z",
     "category": {
@@ -3882,9 +3880,7 @@
     "title": "New Product",
     "price": 10,
     "description": "2",
-    "images": [
-      "https://placeimg.com/640/480/any"
-    ],
+    "images": ["https://placeimg.com/640/480/any"],
     "creationAt": "2023-05-03T06:05:15.000Z",
     "updatedAt": "2023-05-03T06:05:15.000Z",
     "category": {
@@ -3900,9 +3896,7 @@
     "title": "washing machine",
     "price": 1222,
     "description": "kljakdja",
-    "images": [
-      "https://placeimg.com/640/480/any"
-    ],
+    "images": ["https://placeimg.com/640/480/any"],
     "creationAt": "2023-05-03T07:35:17.000Z",
     "updatedAt": "2023-05-03T07:35:17.000Z",
     "category": {
