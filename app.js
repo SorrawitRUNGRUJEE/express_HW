@@ -1,45 +1,53 @@
+require('dotenv').config()
 const fs = require('fs/promises')
-const fsSync = require('fs')
+const path = require('path')
 const express = require('express')
 const app = express()
-require('dotenv').config()
-const port = process.env.PORT || 8000
-const path = './products.json'
-const path_delete = './delete.json'
+const productFile = './products.json'
+const deletedFile = './deleted.json'
+// const getProducts = () => fs.readFile(productFile, 'utf8').then( raw => JSON.parse(raw))
+const getProducts = () => fs.readFile(productFile, 'utf8').then(JSON.parse)
+const getDeleted = () => fs.readFile(deletedFile, 'utf8').then(JSON.parse)
+const saveFile = (file, data) => fs.writeFile(file, JSON.stringify(data, null, 2))
 
 
-const readData = (page = 1, limit = 10) => {
-    return fs.readFile(path, 'utf8')
-        .then(JSON.parse)
-        .then(res => {
-            {
-                let start_index = (page - 1) * 5
-                let end_index = start_index + limit
-                return res.slice(start_index, end_index)
-            }
-        })
+const saveToDeleted = (del_item) => {
+    return getDeleted().then(all_del => {
+        all_del.push(del_item)
+        return saveFile(deletedFile, all_del)
+    })
 }
 
-const deleteData = (id) => {
-    return fs.readFile(path, 'utf8')
-        .then(JSON.parse)
-        .then(res => {
-            const deleteIndex = res.findIndex(item => item.id == id)
-            const [deleteditem] = res.splice(deleteIndex,1)
-            fs.writeFile(path_delete, JSON.stringify(deleteditem,null,2))
-            fs.writeFile(path, JSON.stringify(res))
-        })
-}
-app.get(('/'), (req, res) => {
-    res.json({ msg: "welcome to my backend project" })
+app.get('/products/', (req, res) => {
+    const {_page = 1, _limit = 10,_min = 0,_max = 99999999} = req.query
+    getProducts().then(all => {
+        let productFilter =(_min!=0 && _max!=99999999) 
+        ?all.filter(el => el.price > +_min && el.price < +_max):
+        all
+        let start = (_page-1) * _limit
+        let end = start + +_limit
+        let output = productFilter.slice(start, end)
+        res.json({start, end , output})
+    })
+} )
+
+app.delete('/product/:id',(req, res)=> {
+    const {id} = req.params
+    getProducts().then(all=> {
+        let del_idx = all.findIndex(el => el.id === +id)
+        let [del_item] = all.splice(del_idx, 1)
+        saveFile(productFile, all)
+        saveToDeleted(del_item)
+        res.json({msg : `Deleted id= ${id}`})
+    })
 })
-app.get(('/products/'), (req, res) => {
-    const { page, limit } = req.query
-    readData(page, limit).then(result => res.json(result))
+
+
+app.use((req,res,next)=>{
+    // res.status(404).json({msg:"path not found"})
+    console.log("run")
+    next()
 })
-app.delete(('/products/:id'), (req, res) => {
-    const { id } = req.query
-    deleteData(id)
-    res.send({msg:"success"})
-})
-app.listen(port, () => console.log("system operational on port :", port))
+
+let port = process.env.PORT || 8000
+app.listen(port, ()=> console.log('Server on..', port))
